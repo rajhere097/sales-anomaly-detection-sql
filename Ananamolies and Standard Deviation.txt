@@ -1,0 +1,30 @@
+ Standard Deviation = In simple words standard deviation means how far the numbers are spraed from the average. 
+ If numbers are close to the average then its low anamoly. If numbers are spraed far from the average then its high anamoly. 
+
+Anamoly = Sale > Average_Sale + Standard Deviation * 2 = High Anamoly
+Sale < Average_Sale - Standard Deviation * 2 = Low Anamoly 
+
+Query Used =
+
+with Average_Standard as
+(select product_line, avg(total) as average_sale, stddev(total) as standard_deviation
+from walmart_sales
+group by product_line),
+anamoly as 
+(select w.invoice_id, w.product_line, a.average_sale, a.standard_deviation,
+case 
+when (w.total > a.average_sale + a.standard_deviation * 2) then 'High Anamoly'
+when (w.total < a.average_sale - a.standard_deviation * 2) then 'Low Anamoly'
+else 'Medium'
+end as Category
+from walmart_sales w join Average_Standard a
+using(product_line))
+select * from anamoly
+where Category in ('High Anamoly', 'Low Anamoly');
+
+/* 267-62-7380
+303-96-2227
+384-59-6655
+393-65-2792
+574-22-5561
+702-83-5291  These are the transaction with anamolies 
